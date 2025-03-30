@@ -15,12 +15,6 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
-    @GetMapping("/user")
-    @ResponseBody
-    public List<User> test01(){
-        List<User> usetList=userService.list();
-        return usetList;
-    }
     @PostMapping("/user")
     @ResponseBody
     public int SignUp(@RequestParam String username,@RequestParam String password,@RequestParam String email){
@@ -51,5 +45,10 @@ public class UserController {
             return 1;//login successful
         }
         return 0;//login failed
+    }
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request){
+        request.getSession().removeAttribute("user");
+        return "redirect:/";
     }
 }
