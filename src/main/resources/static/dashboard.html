@@ -19,7 +19,7 @@
         <a href="#">Profile</a>
       </nav>
       <div class="top-avatar">
-        <img src="https://via.placeholder.com/68" alt="User Avatar" />
+        <img src="https://placehold.co/68" alt="User Avatar" />
       </div>
     </header>
   </div>
@@ -35,10 +35,13 @@
             <p class="card-subtitle">Enter a URL to check if it's safe to visit</p>
           </div>
         </div>
-        <form class="url-form">
-          <input type="text" value="www.google.com" class="url-input" />
-          <button type="submit" class="check-btn" id="check-domain-btn">Check</button>
-        </form>
+        <div class="input-content">
+          <form class="url-form">
+            <input type="text" placeholder="type your domain here" class="url-input" />
+            <button type="submit" class="check-btn" id="check-domain-btn">Check</button>
+          </form>
+          <div id="result-container"></div>
+        </div>
       </section>
 
       <!-- 右侧：Custom Lists 卡片 -->
@@ -78,7 +81,13 @@
         if (!resultDisplay) {
           resultDisplay = document.createElement('div');
           resultDisplay.className = 'check-result';
-          document.querySelector('.url-form').insertAdjacentElement('afterend', resultDisplay);
+          document.querySelector('#result-container').appendChild(resultDisplay);
+        }
+        
+        // Add high-risk class if risk level is HIGH_RISK or DANGEROUS
+        resultDisplay.classList.remove('high-risk');
+        if (result.riskLevel === 'HIGH_RISK' || result.riskLevel === 'DANGEROUS') {
+          resultDisplay.classList.add('high-risk');
         }
         
         // Display the risk assessment results

@@ -18,12 +18,13 @@ body {
   }
   
   .top-bar {
-    max-width: 1920px;
+    max-width: 1200px;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 56px;
+    padding: 0 24px;
+    margin: 0 auto;
     box-sizing: border-box;
   }
   
@@ -67,13 +68,15 @@ body {
   
   /* 主内容区 */
   .dashboard-container {
-    padding: 160px 48px 48px;
+    padding: 160px 24px 48px;
     background: #ffffff;
     min-height: 100vh;
     box-sizing: border-box;
   }
   
   .main-content {
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
     gap: 48px;
     align-items: flex-start;
@@ -85,12 +88,18 @@ body {
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     padding: 32px;
-    width: 1248px;
-    height: 210px;
+    flex: 1;
+    min-height: 210px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 24px;
+  }
+  
+  .input-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
   }
   
   .input-header {
@@ -208,11 +217,19 @@ body {
   
   /* Risk Assessment Results Styling */
   .check-result {
-    margin-top: 20px;
     background: white;
     border-radius: 10px;
-    padding: 20px;
+    padding: 24px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+
+  .check-result.high-risk {
+    background: #f7d5de;
+  }
+
+  .check-result.high-risk .result-header h3 {
+    color: #fd4962;
   }
 
   .result-header {
