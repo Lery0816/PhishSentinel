@@ -1,0 +1,315 @@
+body {
+    margin: 0;
+    font-family: 'Source Sans Pro', sans-serif;
+    background-color: #ffffff;
+    color: #292929;
+  }
+  
+  /* 顶部白色导航容器 */
+  .top-bar-container {
+    width: 100%;
+    height: 103px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+  }
+  
+  .top-bar {
+    max-width: 1200px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  
+  .top-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .shield-icon {
+    width: 54px;
+    height: 54px;
+    margin-right: 20px;
+  }
+  
+  .top-title {
+    font-size: 34px;
+    font-weight: 700;
+    color: #367cf4;
+  }
+  
+  .top-nav {
+    display: flex;
+    gap: 24px;
+  }
+  
+  .top-nav a {
+    font-size: 20px;
+    text-decoration: none;
+    color: #5b5b5b;
+  }
+  
+  .top-nav a.active {
+    color: #367cf4;
+  }
+  
+  .top-avatar img {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+  }
+  
+  /* 主内容区 */
+  .dashboard-container {
+    padding: 160px 24px 48px;
+    background: #ffffff;
+    min-height: 100vh;
+    box-sizing: border-box;
+  }
+  
+  .main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+  }
+  
+  /* 输入卡片 */
+  .input-card {
+    background: #f5f9fe;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 32px;
+    flex: 1;
+    min-height: 210px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .input-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .input-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  
+  .card-shield {
+    width: 54px;
+    height: 54px;
+    margin-right: 20px;
+  }
+  
+  .card-titles .card-title {
+    font-size: 32px;
+    font-weight: 600;
+    margin: 0;
+    color: #292929;
+  }
+  
+  .card-subtitle {
+    font-size: 16px;
+    color: #7d7c7c;
+    margin: 4px 0 0 0;
+  }
+  
+  .url-form {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .url-input {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 20px;
+    border: 1px solid #bbb;
+    font-size: 16px;
+    background-color: #ffffff;
+    box-sizing: border-box;
+  }
+  
+  .check-btn {
+    padding: 14px 24px;
+    border-radius: 20px;
+    border: 1px solid #bbb;
+    background: linear-gradient(to bottom, #389ee2, #2c6eef);
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  
+  /* 右侧卡片 */
+  .custom-list-panel {
+    width: 528px;
+    height: 463px;
+    background-color: #f5f9fe;
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+  
+  .custom-list-panel h2 {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .custom-list-panel p {
+    font-size: 16px;
+    color: #7d7c7c;
+    margin-bottom: 24px;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .tab {
+    font-size: 18px;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 12px;
+    background-color: #eaeaea;
+    cursor: pointer;
+    color: #848383;
+  }
+  
+  .tab.active {
+    background-color: #ffe6ea;
+    color: #fd4861;
+  }
+  
+  .list-card {
+    background-color: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+  }
+  
+  .label {
+    display: inline-block;
+    background-color: #fce1e4;
+    color: #fd4861;
+    font-size: 16px;
+    padding: 6px 12px;
+    border-radius: 12px;
+    margin: 6px 6px 0 0;
+  }
+  
+  /* Risk Assessment Results Styling */
+  .check-result {
+    background: white;
+    border-radius: 10px;
+    padding: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+  }
+
+  .check-result.high-risk {
+    background: #f7d5de;
+  }
+
+  .check-result.high-risk .result-header h3 {
+    color: #fd4962;
+  }
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .result-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dismiss-btn {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    transition: color 0.2s ease;
+  }
+
+  .dismiss-btn:hover {
+    color: #333;
+  }
+
+  .result-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+  }
+
+  .risk-level {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9em;
+  }
+
+  .risk-level.high {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+
+  .risk-level.medium {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+
+  .risk-level.low {
+    background-color: #e8f5e9;
+    color: #388e3c;
+  }
+
+  .score-details {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .score-item {
+    background: #f5f5f5;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .score-item span:first-child {
+    color: #666;
+    font-weight: 500;
+  }
+
+  .score-item span:last-child {
+    font-weight: 600;
+    color: #333;
+  }

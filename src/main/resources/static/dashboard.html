@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard - URL Safety Checker</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- 顶部导航条 -->
+  <div class="top-bar-container">
+    <header class="top-bar">
+      <div class="top-left">
+        <img src="images/logo.png" alt="Logo" width="54" height="54"/>
+        <span class="top-title">URL Safety Checker</span>
+      </div>
+      <nav class="top-nav">
+        <a href="#" class="active">Dashboard</a>
+        <a href="#">Profile</a>
+      </nav>
+      <div class="top-avatar">
+        <img src="https://placehold.co/68" alt="User Avatar" />
+      </div>
+    </header>
+  </div>
+
+  <div class="dashboard-container">
+    <main class="main-content">
+      <!-- 左侧：输入卡片 -->
+      <section class="input-card">
+        <div class="input-header">
+          <img src="images/logo.png" alt="Logo" width="54" height="54"/>
+          <div class="card-titles">
+            <h2 class="card-title">URL Safety Checker</h2>
+            <p class="card-subtitle">Enter a URL to check if it's safe to visit</p>
+          </div>
+        </div>
+        <div class="input-content">
+          <form class="url-form">
+            <input type="text" placeholder="type your domain here" class="url-input" />
+            <button type="submit" class="check-btn" id="check-domain-btn">Check</button>
+          </form>
+          <div id="result-container"></div>
+        </div>
+      </section>
+
+      <!-- 右侧：Custom Lists 卡片 -->
+      <aside class="custom-list-panel">
+        <h2>Custom Lists</h2>
+        <p>Manage your blocklist and allowlist</p>
+        <div class="tabs">
+          <button class="tab active">Blocklist</button>
+          <button class="tab">Allowlist</button>
+        </div>
+        <div class="list-card">
+          <span class="label block">phishing-site.com</span>
+          <span class="label block">badexample.org</span>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    document.getElementById('check-domain-btn').addEventListener('click', async function(e) {
+      e.preventDefault();
+      
+      const url = document.querySelector('.url-input').value;
+      try {
+        const response = await fetch(`/api/domain/score?domain=${encodeURIComponent(url)}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+        
+        const result = await response.json();
+        
+        // Create or get result display element
+        let resultDisplay = document.querySelector('.check-result');
+        if (!resultDisplay) {
+          resultDisplay = document.createElement('div');
+          resultDisplay.className = 'check-result';
+          document.querySelector('#result-container').appendChild(resultDisplay);
+        }
+        
+        // Add high-risk class if risk level is HIGH_RISK or DANGEROUS
+        resultDisplay.classList.remove('high-risk');
+        if (result.riskLevel === 'HIGH_RISK' || result.riskLevel === 'DANGEROUS') {
+          resultDisplay.classList.add('high-risk');
+        }
+        
+        // Display the risk assessment results
+        resultDisplay.innerHTML = `
+          <div class="result-header">
+            <h3>Risk Assessment Results</h3>
+            <div class="result-actions">
+              <div class="risk-level ${result.riskLevel.toLowerCase()}">${result.riskLevel}</div>
+              <button class="dismiss-btn" aria-label="Dismiss results">×</button>
+            </div>
+          </div>
+          <div class="score-details">
+            <div class="score-item">
+              <span>List Score:</span>
+              <span>${result.listScore}</span>
+            </div>
+            <div class="score-item">
+              <span>Structure Score:</span>
+              <span>${result.structureScore}</span>
+            </div>
+            <div class="score-item">
+              <span>SSL Score:</span>
+              <span>${result.sslScore}</span>
+            </div>
+            <div class="score-item">
+              <span>WHOIS Score:</span>
+              <span>${result.whoisScore}</span>
+            </div>
+          </div>
+        `;
+
+        // Add click handler for dismiss button
+        resultDisplay.querySelector('.dismiss-btn').addEventListener('click', function() {
+          resultDisplay.remove();
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while checking the domain. Please try again.');
+      }
+    });
+  </script>
+</body>
+</html>

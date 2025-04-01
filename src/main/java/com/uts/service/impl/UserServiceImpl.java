@@ -13,22 +13,25 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
     @Autowired
     UserMapper userMapper;
+
     @Override
     public void createUser(User user) throws UserException {
         if (userMapper.countByEmail(user.getEmail()) > 0) {
-            throw new UserException("Email already exists",ErrorType.EMAIL_DUPLICATE);
+            throw new UserException("Email already exists", ErrorType.EMAIL_DUPLICATE);
         }
         if (userMapper.countByUserName(user.getUsername()) > 0) {
-            throw new UserException("Username already exists",ErrorType.USERNAME_DUPLICATE);
+            throw new UserException("Username already exists", ErrorType.USERNAME_DUPLICATE);
         }
         userMapper.insert(user);
     }
 
     @Override
     public boolean findUser(String username, String password) {
-        if(userMapper.findUser(username,password)==0){
-            return false;
-        }
-        return true;
+        return userMapper.findUser(username, password) > 0;
+    }
+
+    @Override
+    public boolean findUserByEmail(String email, String password) {
+        return userMapper.findUserByEmail(email, password) > 0;
     }
 }
