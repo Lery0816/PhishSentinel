@@ -66,12 +66,11 @@
       
       const url = document.querySelector('.url-input').value;
       try {
-        const response = await fetch('/api/domain/check', {
-          method: 'POST',
+        const response = await fetch(`/api/domain/score?domain=${encodeURIComponent(url)}`, {
+          method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ domainName: url })
+            'Accept': 'application/json'
+          }
         });
         
         const result = await response.json();
