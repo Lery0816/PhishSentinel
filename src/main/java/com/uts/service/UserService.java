@@ -6,5 +6,6 @@ import com.uts.pojo.User;
 
 public interface UserService extends IService<User> {
     void createUser(User user) throws UserException;
-    boolean findUser(String username,String password);
+    boolean findUser(String username, String password);
+    boolean findUserByEmail(String email, String password);
 }

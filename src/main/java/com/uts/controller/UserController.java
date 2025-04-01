@@ -9,46 +9,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/api")
 public class UserController {
     @Autowired
     private UserService userService;
+
     @PostMapping("/user")
     @ResponseBody
-    public int SignUp(@RequestParam String username,@RequestParam String password,@RequestParam String email){
-        User user=new User();
+    public int SignUp(@RequestParam String username, @RequestParam String password, @RequestParam String email) {
+        User user = new User();
         user.setUsername(username);
         user.setPassword(password);
         user.setEmail(email);
         try {
             userService.createUser(user);
-            return 0;//Registration successful
+            return 0; // Registration successful
         } catch (UserException e) {
-            if (e.getErrorType()== ErrorType.EMAIL_DUPLICATE){
-                return 1;//Duplicate email
+            if (e.getErrorType() == ErrorType.EMAIL_DUPLICATE) {
+                return 1; // Duplicate email
             }
-            if (e.getErrorType()== ErrorType.USERNAME_DUPLICATE){
-                return 2;//Duplicate username
+            if (e.getErrorType() == ErrorType.USERNAME_DUPLICATE) {
+                return 2; // Duplicate username
             }
-            return 3;//Other errors
+            return 3; // Other errors
         }
     }
+
     @PostMapping("/login")
     @ResponseBody
-    public int login(@RequestParam String username,@RequestParam String password, HttpServletRequest request){
-        if (userService.findUser(username,password)){
-            User user=new User();
-            user.setUsername(username);
-            request.getSession().setAttribute("user",user);
-            return 1;//login successful
+    public int login(@RequestParam String email, @RequestParam String password, HttpServletRequest request) {
+        if (userService.findUserByEmail(email, password)) {
+            User user = new User();
+            user.setEmail(email);
+            request.getSession().setAttribute("user", user);
+            return 1; // Login successful
         }
-        return 0;//login failed
+        return 0; // Login failed
     }
+
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request){
+    public String logout(HttpServletRequest request) {
         request.getSession().removeAttribute("user");
         return "redirect:/";
     }

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>URL Safety Checker</title>
+  <link rel="stylesheet" href="login.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background"></div>
+
+  <div class="container">
+    <!-- SHIELD ICON -->
+    <div class="icon icon-shield">
+      <div class="icon-bg shield-bg"></div>
+      <div class="svg-icon">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L4 5V11C4 16.5 8.5 20.74 12 22C15.5 20.74 20 16.5 20 11V5L12 2Z"
+            fill="#4A6FFF"/>
+        </svg>
+      </div>
+    </div>
+
+    <h1>URL Safety Checker</h1>
+    <p>Verify website security with confidence</p>
+
+    <form id="loginForm">
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required placeholder="name@samplemail.com"/>
+
+      <label for="password">Password</label>
+      <div class="input-with-icon">
+        <input type="password" id="password" name="password" required />
+      </div>
+      
+      <div id="errorMessage" class="error-message" style="color: red; margin-bottom: 10px; display: none;"></div>
+      <button type="submit">Sign in</button>
+    </form>
+
+    <div class="signup">
+      Don't have an account? <a href="register.html">Sign up</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('errorMessage');
+      
+      try {
+        const formData = new URLSearchParams();
+        formData.append('email', email);
+        formData.append('password', password);
+
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formData
+        });
+
+        const result = await response.json();
+        
+        if (result === 1) {
+          // Login successful
+          window.location.href = '/dashboard.html';
+        } else {
+          // Login failed
+          errorMessage.textContent = 'Invalid email or password';
+          errorMessage.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        errorMessage.textContent = 'An error occurred. Please try again.';
+        errorMessage.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
