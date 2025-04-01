@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Application Config ###
+**/application-db.yml
+!**/application-db.yml.example
+
 ### STS ###
 .apt_generated
 .classpath

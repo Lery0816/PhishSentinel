@@ -1,25 +1,30 @@
 package com.uts.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
-@TableName("t_user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@TableName("users")
 public class User {
     @TableId(type = IdType.AUTO)
-    private Integer id;
+    private Long id;
+
     private String username;
     private String password;
     private String email;
-    private Date createdAt;
-    private Date updatedAt;
 
+    @TableField("created_at")
+    private LocalDateTime createdAt;
+
+    @TableField("updated_at")
+    private LocalDateTime updatedAt;
 }
