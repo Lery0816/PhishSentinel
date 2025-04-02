@@ -49,18 +49,68 @@
         <h2>Custom Lists</h2>
         <p>Manage your blocklist and allowlist</p>
         <div class="tabs">
-          <button class="tab active">Blocklist</button>
-          <button class="tab">Allowlist</button>
+          <button class="tab active" data-list="blocklist">Blocklist</button>
+          <button class="tab" data-list="allowlist">Allowlist</button>
+        </div>
+        <div class="list-add-form">
+          <input type="text" placeholder="Enter domain" id="domain-input" class="domain-input" />
+          <button type="button" id="add-domain-btn" class="add-btn">Add</button>
         </div>
         <div class="list-card">
-          <span class="label block">phishing-site.com</span>
-          <span class="label block">badexample.org</span>
         </div>
       </aside>
     </main>
   </div>
 
+  <script src="js/blacklist.js"></script>
+  <script src="js/whitelist.js"></script>
   <script>
+    // Tab switching logic
+    const tabs = document.querySelectorAll('.tab');
+    const domainInput = document.getElementById('domain-input');
+    const addDomainBtn = document.getElementById('add-domain-btn');
+    let currentList = 'blocklist';
+
+    // Initialize with blocklist
+    loadBlacklist();
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Update active state
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Update current list and load appropriate data
+        currentList = tab.dataset.list;
+        if (currentList === 'blocklist') {
+          loadBlacklist();
+        } else {
+          loadWhitelist();
+        }
+      });
+    });
+
+    // Handle domain addition
+    addDomainBtn.addEventListener('click', async function() {
+      const domain = domainInput.value.trim();
+      
+      if (!domain) {
+        alert('Please enter a domain');
+        return;
+      }
+
+      let success = false;
+      if (currentList === 'blocklist') {
+        success = await addToBlacklist(domain);
+      } else {
+        success = await addToWhitelist(domain);
+      }
+
+      if (success) {
+        domainInput.value = ''; // Clear input
+      }
+    });
+
     document.getElementById('check-domain-btn').addEventListener('click', async function(e) {
       e.preventDefault();
       
