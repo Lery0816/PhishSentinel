@@ -18,9 +18,11 @@ public class DomainController {
         RiskResult riskResult = new RiskResult();
         riskResult.setListScore(domainService.checkList(domain));
         riskResult.setStructureScore(domainService.analyzeDomainStructure(domain));
+        domainService.checkSSL(domain);
         riskResult.setSslScore(domainService.calculateSSLScore(domain));
         domainService.checkWhoisInfo(domain);
         riskResult.setWhoisScore(domainService.calculateWhoisScore(domain));
+        riskResult.setTotalScore(riskResult.getListScore()+riskResult.getStructureScore()+riskResult.getSslScore()+riskResult.getWhoisScore());
         riskResult.calculateRiskLevel();
         return riskResult;
     }

@@ -1,8 +1,9 @@
 package com.uts.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.uts.enums.ErrorType;
-import com.uts.exception.UserException;
+import com.uts.enums.ErrorCode;
+import com.uts.exception.BusinessException;
 import com.uts.mapper.UserMapper;
 import com.uts.pojo.User;
 import com.uts.service.UserService;
@@ -15,23 +16,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     UserMapper userMapper;
 
     @Override
-    public void createUser(User user) throws UserException {
+    public void createUser(User user) throws BusinessException {
         if (userMapper.countByEmail(user.getEmail()) > 0) {
-            throw new UserException("Email already exists", ErrorType.EMAIL_DUPLICATE);
+            throw new BusinessException(ErrorCode.EMAIL_EXISTS.getCode(),
+                    ErrorCode.EMAIL_EXISTS.getMessage());
         }
         if (userMapper.countByUserName(user.getUsername()) > 0) {
-            throw new UserException("Username already exists", ErrorType.USERNAME_DUPLICATE);
+            throw new BusinessException(ErrorCode.USERNAME_DUPLICATE.getCode(),
+                    ErrorCode.USERNAME_DUPLICATE.getMessage());
         }
         userMapper.insert(user);
     }
 
     @Override
-    public boolean findUser(String username, String password) {
-        return userMapper.findUser(username, password) > 0;
+    public User findUser(String email, String password) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("email", email).eq("password", password);
+        return userMapper.selectOne(wrapper);
     }
 
-    @Override
-    public boolean findUserByEmail(String email, String password) {
-        return userMapper.findUserByEmail(email, password) > 0;
-    }
 }

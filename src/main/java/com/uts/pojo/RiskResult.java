@@ -12,12 +12,11 @@ public class RiskResult {
     private int listScore;
     private int sslScore;
     private int whoisScore;
-    private int totalScore;
     private int structureScore;
+    private int totalScore;
     private RiskLevel riskLevel;
 
     public void calculateRiskLevel() {
-        int totalScore=this.getListScore()+this.getSslScore()+this.getWhoisScore()+this.getStructureScore();
         if (totalScore <= 20) {
             this.setRiskLevel(RiskLevel.SAFE);
         }

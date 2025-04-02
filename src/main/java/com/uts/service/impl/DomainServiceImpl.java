@@ -12,15 +12,19 @@ import com.uts.service.DomainService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetSocketAddress;
 import java.net.URL;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class DomainServiceImpl implements DomainService {
@@ -29,7 +33,7 @@ public class DomainServiceImpl implements DomainService {
     @Autowired
     BlacklistMapper blacklistMapper;
     @Autowired
-    SSLCertificateMapper SSLCertificateMapper;
+    SSLCertificateMapper sslCertificateMapper;
     @Autowired
     WhoisInfoMapper whoisInfoMapper;
 
@@ -37,14 +41,13 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public int checkList(String domainName) {
         if (isInBlacklist(domainName)) {
-            return 100; // 在黑名单中直接判定高风险100
+            return 100;
         } else if (isInWhitelist(domainName)) {
-            return 0; // 在白名单中直接判定安全0
+            return 0;
         } else {
-            return 15; // 未知域名，初步判定15
+            return 15;
         }
     }
-
     @Override
     public int analyzeDomainStructure(String domain) {
         int score = 0;
@@ -66,7 +69,7 @@ public class DomainServiceImpl implements DomainService {
                 "acc0unt", "ver1fy", "updat3", "conf1rm", "supp0rt", "serv1ce", "re1ease"};
         for (String pattern : phishingPatterns) {
             if (domain.toLowerCase().contains(pattern)) {
-                score += 10;
+                score += 30;
                 break;
             }
         }
@@ -80,23 +83,27 @@ public class DomainServiceImpl implements DomainService {
         }
         return score;
     }
-
     @Override
     public SSLCertificate checkSSL(String domainName) {
-        // Simulate SSL certificate verification
         SSLCertificate ssl = new SSLCertificate();
         ssl.setDomainName(domainName);
         try {
-            //拼接url
-            URL url = new URL("https://" + domainName);
-            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-            conn.connect();
-            X509Certificate cert = (X509Certificate) conn.getServerCertificates()[0];
-            ssl = new SSLCertificate();
-            ssl.setDomainName(domainName);
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new TrustManager[]{new X509TrustManager() {
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+                public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+            }}, new SecureRandom());
+            SSLSocketFactory factory = context.getSocketFactory();
+            SSLSocket socket = (SSLSocket) factory.createSocket();
+            socket.connect(new InetSocketAddress(domainName, 443), 5000); // 5秒超时
+            SSLParameters sslParams = new SSLParameters();
+            sslParams.setServerNames(java.util.Collections.singletonList(new SNIHostName(domainName)));
+            socket.setSSLParameters(sslParams);
+            socket.startHandshake();
+            SSLSession session = socket.getSession();
+            X509Certificate cert = (X509Certificate) session.getPeerCertificates()[0];
             ssl.setCertificateIssuer(cert.getIssuerX500Principal().getName());
-
-            // 证书类型简单模拟
             String issuer = cert.getIssuerX500Principal().getName().toLowerCase();
             if (issuer.contains("digicert") || issuer.contains("globalsign")) {
                 ssl.setCertificateType("EV");
@@ -106,25 +113,24 @@ public class DomainServiceImpl implements DomainService {
                 ssl.setCertificateType("other");
             }
 
-            ssl.setCertificateValid(cert.getNotAfter().toInstant().isAfter(java.time.Instant.now()));
+            ssl.setCertificateValid(cert.getNotAfter().after(new Date()));
             ssl.setExpirationDate(cert.getNotAfter().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-
-            SSLCertificateMapper.insert(ssl);
+            socket.close();
         } catch (Exception e) {
-            // 如果获取失败，插入无效数据
             ssl.setCertificateIssuer("Unknown");
             ssl.setCertificateType("None");
             ssl.setCertificateValid(false);
             ssl.setExpirationDate(null);
         }
+        // 数据库插入或更新
         QueryWrapper<SSLCertificate> wrapper = new QueryWrapper<>();
         wrapper.eq("domain_name", domainName);
-        SSLCertificate existing = SSLCertificateMapper.selectOne(wrapper);
-        if (existing!= null) {
+        SSLCertificate existing = sslCertificateMapper.selectOne(wrapper);
+        if (existing != null) {
             ssl.setId(existing.getId());
-            SSLCertificateMapper.updateById(ssl);// 设置ID进行更新
-        }else {
-            SSLCertificateMapper.insert(ssl);
+            sslCertificateMapper.updateById(ssl);
+        } else {
+            sslCertificateMapper.insert(ssl);
         }
         return ssl;
     }
@@ -132,11 +138,12 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public int calculateSSLScore(String domain) {
         SSLCertificate ssl = getSSLCertificateInfo(domain);
+
         if (ssl == null) {
-            return 40; // 没有证书信息
+            return 40;
         }
         if (!ssl.getCertificateValid() || "None".equals(ssl.getCertificateType())) {
-            return 30;//证书无效或者证书类型为None
+            return 30;
         }
         if ("DV".equals(ssl.getCertificateType())) {
             return 20;
@@ -144,14 +151,14 @@ public class DomainServiceImpl implements DomainService {
         if ("OV".equals(ssl.getCertificateType())) {
             return 10;
         }
-        return 0; // EV
+        return 0;
     }
 
     @Override
     public int calculateWhoisScore(String domain) {
         WhoisInfo whois = getWhoisInfo(domain);
         if (whois == null) {
-            return 30; // 无whois信息，高风险30
+            return 30;
         }
         //计算有效期
         LocalDate now = LocalDate.now();
@@ -167,6 +174,8 @@ public class DomainServiceImpl implements DomainService {
             return 0;
         }
     }
+
+
 
     @Override
     public Boolean isInBlacklist(String domainName) {
@@ -186,7 +195,7 @@ public class DomainServiceImpl implements DomainService {
     public SSLCertificate getSSLCertificateInfo(String domain) {
         QueryWrapper queryWrapper=new QueryWrapper<SSLCertificate>();
         queryWrapper.eq("domain_name", domain);
-        return SSLCertificateMapper.selectOne(queryWrapper);
+        return sslCertificateMapper.selectOne(queryWrapper);
     }
 
     @Override

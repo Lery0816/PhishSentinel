@@ -1,7 +1,10 @@
 package com.uts.service;
 
+import com.uts.pojo.BlackList;
 import com.uts.pojo.SSLCertificate;
 import com.uts.pojo.WhoisInfo;
+
+import java.util.List;
 
 public interface DomainService {
     //检查是否命中黑名单
@@ -30,4 +33,6 @@ public interface DomainService {
     WhoisInfo getWhoisInfo(String domain);
     //计算Whois分数
     int calculateWhoisScore(String domain);
+
+
 }
