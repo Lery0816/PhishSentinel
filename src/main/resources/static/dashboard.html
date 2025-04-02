@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard - URL Safety Checker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Safety Checker</title>
+  <link rel="icon" type="image/png" href="/images/logo.png">
   <link rel="stylesheet" href="css/dashboard.css" />
   <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
@@ -53,8 +55,10 @@
           <button class="tab" data-list="allowlist">Allowlist</button>
         </div>
         <div class="list-add-form">
-          <input type="text" placeholder="Enter domain" id="domain-input" class="domain-input" />
-          <button type="button" id="add-domain-btn" class="add-btn">Add</button>
+          <input type="text" placeholder="Enter domain to block" id="block-domain-input" class="domain-input" />
+          <button type="button" id="add-to-blacklist-btn" class="add-btn">Add to Blocklist</button>
+          <input type="text" placeholder="Enter domain to allow" id="allow-domain-input" class="domain-input" style="display: none;" />
+          <button type="button" id="add-to-whitelist-btn" class="add-btn" style="display: none;">Add to Allowlist</button>
         </div>
         <div class="list-card">
         </div>
@@ -67,8 +71,10 @@
   <script>
     // Tab switching logic
     const tabs = document.querySelectorAll('.tab');
-    const domainInput = document.getElementById('domain-input');
-    const addDomainBtn = document.getElementById('add-domain-btn');
+    const blockDomainInput = document.getElementById('block-domain-input');
+    const allowDomainInput = document.getElementById('allow-domain-input');
+    const addToBlacklistBtn = document.getElementById('add-to-blacklist-btn');
+    const addToWhitelistBtn = document.getElementById('add-to-whitelist-btn');
     let currentList = 'blocklist';
 
     // Initialize with blocklist
@@ -83,31 +89,49 @@
         // Update current list and load appropriate data
         currentList = tab.dataset.list;
         if (currentList === 'blocklist') {
+          blockDomainInput.style.display = '';
+          addToBlacklistBtn.style.display = '';
+          allowDomainInput.style.display = 'none';
+          addToWhitelistBtn.style.display = 'none';
           loadBlacklist();
         } else {
+          blockDomainInput.style.display = 'none';
+          addToBlacklistBtn.style.display = 'none';
+          allowDomainInput.style.display = '';
+          addToWhitelistBtn.style.display = '';
           loadWhitelist();
         }
       });
     });
 
     // Handle domain addition
-    addDomainBtn.addEventListener('click', async function() {
-      const domain = domainInput.value.trim();
+    addToBlacklistBtn.addEventListener('click', async function() {
+      const domain = blockDomainInput.value.trim();
       
       if (!domain) {
         alert('Please enter a domain');
         return;
       }
 
-      let success = false;
-      if (currentList === 'blocklist') {
-        success = await addToBlacklist(domain);
-      } else {
-        success = await addToWhitelist(domain);
-      }
+      let success = await addToBlacklist(domain);
 
       if (success) {
-        domainInput.value = ''; // Clear input
+        blockDomainInput.value = ''; // Clear input
+      }
+    });
+
+    addToWhitelistBtn.addEventListener('click', async function() {
+      const domain = allowDomainInput.value.trim();
+      
+      if (!domain) {
+        alert('Please enter a domain');
+        return;
+      }
+
+      let success = await addToWhitelist(domain);
+
+      if (success) {
+        allowDomainInput.value = ''; // Clear input
       }
     });
 

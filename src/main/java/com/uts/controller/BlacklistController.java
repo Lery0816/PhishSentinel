@@ -23,23 +23,31 @@ public class BlacklistController {
     private BlackListService blackListService;
 
     @PostMapping("/add")
-    public int addToBlacklist(@RequestParam String domainname,HttpServletRequest request) {
+    public BlackList addToBlacklist(@RequestParam String domainname,HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
         BlackList blackList = new BlackList();
         blackList.setDomainName(domainname);
         blackList.setUserId(user.getId());
         blackList.setCreatedAt(java.time.LocalDateTime.now());
         blackList.setUpdatedAt(java.time.LocalDateTime.now());
-        return blackListService.addToBlacklist(blackList);//0 failed 1 successful
+        int result = blackListService.addToBlacklist(blackList);
+        if (result == 1) {
+            return blackList; // Return the full object with ID
+        }
+        throw new BusinessException(ErrorCode.DOMAIN_ALREADY_EXISTS.getCode(), "Failed to add domain to blacklist");
     }
 
     @PostMapping("/delete")
-    public int deleteFromBlacklist(@RequestParam String id,HttpServletRequest request) {
+    public int deleteFromBlacklist(@RequestParam Long id, HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
-        if (!blackListService.isInBlacklist(id, user.getId())){
+        List<BlackList> userBlacklists = blackListService.queryBlacklistByUserId(user.getId());
+        boolean found = userBlacklists.stream()
+            .anyMatch(item -> item.getId().equals(id));
+        
+        if (!found) {
             throw new BusinessException(ErrorCode.DOMAIN_NOT_FOUND.getCode(), ErrorCode.DOMAIN_NOT_FOUND.getMessage());
         }
-        return blackListService.deleteFromBlacklist(Long.parseLong(id));//0 failed 1 successful
+        return blackListService.deleteFromBlacklist(id);
     }
 
     @PostMapping("/update")

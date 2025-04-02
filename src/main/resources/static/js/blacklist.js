@@ -13,7 +13,22 @@ async function loadBlacklist() {
       blacklist.forEach(item => {
         const domainSpan = document.createElement('div');
         domainSpan.className = 'label block';
-        domainSpan.textContent = item.domainName;
+        domainSpan.dataset.id = item.id; // Store the ID in the DOM element
+        
+        const domainText = document.createElement('span');
+        domainText.textContent = item.domainName;
+        domainSpan.appendChild(domainText);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '×';
+        deleteBtn.title = 'Remove from blocklist';
+        deleteBtn.onclick = (e) => {
+          const id = e.currentTarget.parentElement.dataset.id;
+          deleteFromBlacklist(id);
+        };
+        domainSpan.appendChild(deleteBtn);
+
         listCard.appendChild(domainSpan);
       });
     } else {
@@ -36,8 +51,8 @@ async function addToBlacklist(domain) {
     });
 
     if (response.ok) {
-      const result = await response.json();
-      if (result === 1) {
+      const blackList = await response.json();
+      if (blackList && blackList.id) {
         alert('Domain added to blacklist successfully');
         loadBlacklist(); // Refresh the list
         return true;
@@ -54,21 +69,56 @@ async function addToBlacklist(domain) {
   return false;
 }
 
-// Load blacklist on page load
-document.addEventListener('DOMContentLoaded', loadBlacklist);
-
-// Add event listener to add-to-blacklist-btn
-document.getElementById('add-to-blacklist-btn').addEventListener('click', async function() {
-  const domainInput = document.getElementById('block-domain-input');
-  const domain = domainInput.value.trim();
-  
-  if (!domain) {
-    alert('Please enter a domain');
+// Delete domain from blacklist
+async function deleteFromBlacklist(id) {
+  if (!confirm('Are you sure you want to remove this domain from the blocklist?')) {
     return;
   }
 
-  const success = await addToBlacklist(domain);
-  if (success) {
-    domainInput.value = ''; // Clear input
+  try {
+    const response = await fetch('/api/blacklist/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `id=${id}`
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result === 1) {
+        loadBlacklist(); // Refresh the list
+      } else {
+        alert('Failed to remove domain from blacklist');
+      }
+    } else {
+      const error = await response.json();
+      alert(`Error removing domain: ${error.message}`);
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Error removing domain from blacklist');
   }
-});
+}
+
+// Initialize blacklist functionality only on dashboard page
+if (document.querySelector('.custom-list-panel')) {
+  // Load blacklist on page load
+  document.addEventListener('DOMContentLoaded', loadBlacklist);
+
+  // Add event listener to add-to-blacklist-btn
+  document.getElementById('add-to-blacklist-btn').addEventListener('click', async function() {
+    const domainInput = document.getElementById('block-domain-input');
+    const domain = domainInput.value.trim();
+    
+    if (!domain) {
+      alert('Please enter a domain');
+      return;
+    }
+
+    const success = await addToBlacklist(domain);
+    if (success) {
+      domainInput.value = ''; // Clear input
+    }
+  });
+}
