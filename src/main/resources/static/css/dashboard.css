@@ -155,14 +155,13 @@ body {
   
   /* 右侧卡片 */
   .custom-list-panel {
-    width: 528px;
-    height: 463px;
-    background-color: #f5f9fe;
-    border-radius: 20px;
+    background: #fff;
+    border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
-    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
   }
   
   .custom-list-panel h2 {
@@ -179,40 +178,185 @@ body {
   
   .tabs {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     margin-bottom: 24px;
+    padding: 4px;
+    background-color: rgba(0, 0, 0, 0.04);
+    border-radius: 12px;
   }
   
   .tab {
-    font-size: 18px;
-    padding: 8px 20px;
+    flex: 1;
+    font-size: 15px;
+    padding: 10px 24px;
     border: none;
-    border-radius: 12px;
-    background-color: #eaeaea;
+    border-radius: 8px;
+    background-color: transparent;
     cursor: pointer;
-    color: #848383;
+    color: #666;
+    font-weight: 500;
+    transition: all 0.2s ease;
   }
   
-  .tab.active {
-    background-color: #ffe6ea;
+  .tab.active[data-list="blocklist"] {
+    background-color: white;
     color: #fd4861;
+    box-shadow: 0 2px 8px rgba(253, 72, 97, 0.1);
+  }
+
+  .tab.active[data-list="allowlist"] {
+    background-color: white;
+    color: #4CAF50;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+  }
+
+  .tab:hover:not(.active)[data-list="blocklist"] {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: #fd4861;
+  }
+
+  .tab:hover:not(.active)[data-list="allowlist"] {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: #4CAF50;
   }
   
   .list-card {
-    background-color: #ffffff;
-    padding: 16px;
-    border-radius: 12px;
-    border: 1px solid #ddd;
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 100px;
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
   }
-  
+
+  .list-card::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .list-card::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .list-card::-webkit-scrollbar-thumb {
+    background-color: rgba(253, 72, 97, 0.2);
+    border-radius: 4px;
+  }
+
+  .list-card::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(253, 72, 97, 0.3);
+  }
+
+  .list-add-form {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+    padding: 0 16px;
+  }
+
+  .domain-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .add-btn {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+
+  .add-btn:hover {
+    background-color: #45a049;
+  }
+
   .label {
-    display: inline-block;
-    background-color: #fce1e4;
+    display: inline-flex;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.04);
+    color: #666;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .delete-btn {
+    opacity: 0;
+    width: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: inherit;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-10px);
+    position: absolute;
+    right: 12px;
+  }
+
+  .label:hover {
+    padding-right: 40px;
+  }
+
+  .label:hover .delete-btn {
+    opacity: 1;
+    width: 20px;
+    transform: translateX(0);
+  }
+
+  .delete-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .label.block {
+    background-color: rgba(253, 72, 97, 0.1);
     color: #fd4861;
-    font-size: 16px;
-    padding: 6px 12px;
-    border-radius: 12px;
-    margin: 6px 6px 0 0;
+  }
+
+  .label.allow {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+  }
+
+  .label.block:hover {
+    background-color: rgba(253, 72, 97, 0.15);
+  }
+
+  .label.allow:hover {
+    background-color: rgba(76, 175, 80, 0.15);
+  }
+
+  .label.block .delete-btn:hover {
+    background-color: rgba(253, 72, 97, 0.2);
+  }
+
+  .label.allow .delete-btn:hover {
+    background-color: rgba(76, 175, 80, 0.2);
+  }
+
+  .label:last-child {
+    margin-bottom: 0;
   }
   
   /* Risk Assessment Results Styling */
@@ -312,4 +456,36 @@ body {
   .score-item span:last-child {
     font-weight: 600;
     color: #333;
+  }
+
+  .result-container {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .result-SAFE {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+  }
+
+  .result-SUSPICIOUS {
+    background-color: rgba(255, 152, 0, 0.1);
+    color: #FF9800;
+    border: 1px solid rgba(255, 152, 0, 0.2);
+  }
+
+  .result-HIGH_RISK {
+    background-color: rgba(255, 87, 34, 0.1);
+    color: #FF5722;
+    border: 1px solid rgba(255, 87, 34, 0.2);
+  }
+
+  .result-DANGEROUS {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #F44336;
+    border: 1px solid rgba(244, 67, 54, 0.2);
   }

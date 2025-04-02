@@ -2,8 +2,8 @@ package com.uts.controller;
 
 import com.uts.enums.ErrorCode;
 import com.uts.exception.BusinessException;
-import com.uts.pojo.User;
 import com.uts.pojo.WhiteList;
+import com.uts.pojo.User;
 import com.uts.service.WhiteListService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,34 +18,42 @@ import java.util.List;
 @Controller
 @RequestMapping("/api/whitelist")
 @ResponseBody
-public class whitelistController {
+public class WhitelistController {
     @Autowired
-    private WhiteListService listService;
+    private WhiteListService whiteListService;
 
     @PostMapping("/add")
-    public int addToWhitelist(@RequestParam String domainname,HttpServletRequest request) {
+    public WhiteList addToWhitelist(@RequestParam String domainname,HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
         WhiteList whiteList = new WhiteList();
         whiteList.setDomainName(domainname);
         whiteList.setUserId(user.getId());
         whiteList.setCreatedAt(java.time.LocalDateTime.now());
         whiteList.setUpdatedAt(java.time.LocalDateTime.now());
-        return listService.addToWhitelist(whiteList);//0 failed 1 successful
+        int result = whiteListService.addToWhitelist(whiteList);
+        if (result == 1) {
+            return whiteList; // Return the full object with ID
+        }
+        throw new BusinessException(ErrorCode.DOMAIN_ALREADY_EXISTS.getCode(), "Failed to add domain to whitelist");
     }
 
     @PostMapping("/delete")
-    public int deleteFromWhitelist(@RequestParam String id,HttpServletRequest request) {
+    public int deleteFromWhitelist(@RequestParam Long id, HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
-        if (!listService.isInWhitelist(id, user.getId())){
+        List<WhiteList> userWhitelists = whiteListService.queryWhitelistByUserId(user.getId());
+        boolean found = userWhitelists.stream()
+            .anyMatch(item -> item.getId().equals(id));
+        
+        if (!found) {
             throw new BusinessException(ErrorCode.DOMAIN_NOT_FOUND.getCode(), ErrorCode.DOMAIN_NOT_FOUND.getMessage());
         }
-        return listService.deleteFromWhitelist(Long.parseLong(id));//0 failed 1 successful
+        return whiteListService.deleteFromWhitelist(id);
     }
 
     @PostMapping("/update")
     public int updateWhitelist(@RequestParam String domainname,@RequestParam String id, HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
-        if (listService.isInWhitelist(domainname, user.getId())){
+        if (whiteListService.isInWhitelist(domainname, user.getId())){
             throw new BusinessException(ErrorCode.DOMAIN_ALREADY_EXISTS.getCode(), ErrorCode.DOMAIN_ALREADY_EXISTS.getMessage());
         }
         WhiteList whiteList = new WhiteList();
@@ -53,12 +61,13 @@ public class whitelistController {
         whiteList.setDomainName(domainname);
         whiteList.setUpdatedAt(java.time.LocalDateTime.now());
         whiteList.setUserId(user.getId());
-        return listService.updateWhitelist(whiteList);
+        return whiteListService.updateWhitelist(whiteList);
     }
+
     @PostMapping("/list")
     public List<WhiteList> list(HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
-        List<WhiteList> whiteLists = listService.queryWhitelistByUserId(user.getId());
+        List<WhiteList> whiteLists = whiteListService.queryWhitelistByUserId(user.getId());
         whiteLists.forEach(whiteList -> {
             whiteList.setUserId(null);
         });

@@ -16,52 +16,61 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
-@RequestMapping("/api/whitelist")
+@RequestMapping("/api/blacklist")
 @ResponseBody
 public class BlacklistController {
     @Autowired
-    private BlackListService whiteListService;
+    private BlackListService blackListService;
 
     @PostMapping("/add")
-    public int addToBlacklist(@RequestParam String domainname,HttpServletRequest request) {
+    public BlackList addToBlacklist(@RequestParam String domainname,HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
-        BlackList whiteList = new BlackList();
-        whiteList.setDomainName(domainname);
-        whiteList.setUserId(user.getId());
-        whiteList.setCreatedAt(java.time.LocalDateTime.now());
-        whiteList.setUpdatedAt(java.time.LocalDateTime.now());
-        return whiteListService.addToBlacklist(whiteList);//0 failed 1 successful
+        BlackList blackList = new BlackList();
+        blackList.setDomainName(domainname);
+        blackList.setUserId(user.getId());
+        blackList.setCreatedAt(java.time.LocalDateTime.now());
+        blackList.setUpdatedAt(java.time.LocalDateTime.now());
+        int result = blackListService.addToBlacklist(blackList);
+        if (result == 1) {
+            return blackList; // Return the full object with ID
+        }
+        throw new BusinessException(ErrorCode.DOMAIN_ALREADY_EXISTS.getCode(), "Failed to add domain to blacklist");
     }
 
     @PostMapping("/delete")
-    public int deleteFromBlacklist(@RequestParam String id,HttpServletRequest request) {
+    public int deleteFromBlacklist(@RequestParam Long id, HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
-        if (!whiteListService.isInBlacklist(id, user.getId())){
+        List<BlackList> userBlacklists = blackListService.queryBlacklistByUserId(user.getId());
+        boolean found = userBlacklists.stream()
+            .anyMatch(item -> item.getId().equals(id));
+        
+        if (!found) {
             throw new BusinessException(ErrorCode.DOMAIN_NOT_FOUND.getCode(), ErrorCode.DOMAIN_NOT_FOUND.getMessage());
         }
-        return whiteListService.deleteFromBlacklist(Long.parseLong(id));//0 failed 1 successful
+        return blackListService.deleteFromBlacklist(id);
     }
 
     @PostMapping("/update")
     public int updateBlacklist(@RequestParam String domainname,@RequestParam String id, HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
-        if (whiteListService.isInBlacklist(domainname, user.getId())){
+        if (blackListService.isInBlacklist(domainname, user.getId())){
             throw new BusinessException(ErrorCode.DOMAIN_ALREADY_EXISTS.getCode(), ErrorCode.DOMAIN_ALREADY_EXISTS.getMessage());
         }
-        BlackList whiteList = new BlackList();
-        whiteList.setId(Long.parseLong(id));
-        whiteList.setDomainName(domainname);
-        whiteList.setUpdatedAt(java.time.LocalDateTime.now());
-        whiteList.setUserId(user.getId());
-        return whiteListService.updateBlacklist(whiteList);
+        BlackList blackList = new BlackList();
+        blackList.setId(Long.parseLong(id));
+        blackList.setDomainName(domainname);
+        blackList.setUpdatedAt(java.time.LocalDateTime.now());
+        blackList.setUserId(user.getId());
+        return blackListService.updateBlacklist(blackList);
     }
+
     @PostMapping("/list")
     public List<BlackList> list(HttpServletRequest request) {
         User user = (User)request.getSession().getAttribute("user");
-        List<BlackList> whiteLists = whiteListService.queryBlacklistByUserId(user.getId());
-        whiteLists.forEach(whiteList -> {
-            whiteList.setUserId(null);
+        List<BlackList> blackLists = blackListService.queryBlacklistByUserId(user.getId());
+        blackLists.forEach(blackList -> {
+            blackList.setUserId(null);
         });
-        return whiteLists;
+        return blackLists;
     }
 }
