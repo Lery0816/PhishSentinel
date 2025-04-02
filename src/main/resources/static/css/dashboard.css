@@ -155,14 +155,13 @@ body {
   
   /* 右侧卡片 */
   .custom-list-panel {
-    width: 528px;
-    height: 463px;
-    background-color: #f5f9fe;
-    border-radius: 20px;
+    background: #fff;
+    border-radius: 12px;
     padding: 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
-    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    min-width: 300px;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
   }
   
   .custom-list-panel h2 {
@@ -222,14 +221,13 @@ body {
   }
   
   .list-card {
-    padding: 16px;
-    border-radius: 12px;
-    max-height: 250px;
-    overflow-y: auto;
+    margin-top: 16px;
     display: flex;
     flex-direction: column;
     gap: 8px;
-    align-items: flex-start;
+    min-height: 100px;
+    max-height: calc(100vh - 350px);
+    overflow-y: auto;
   }
 
   .list-card::-webkit-scrollbar {
