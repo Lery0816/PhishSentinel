@@ -18,7 +18,7 @@ import java.util.List;
 @Controller
 @RequestMapping("/api/whitelist")
 @ResponseBody
-public class whitelistController {
+public class WhitelistController {
     @Autowired
     private WhiteListService listService;
 
