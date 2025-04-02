@@ -50,23 +50,22 @@ async function addToBlacklist(domain) {
       body: `domainname=${encodeURIComponent(domain)}`
     });
 
-    if (response.ok) {
-      const blackList = await response.json();
-      if (blackList && blackList.id) {
-        alert('Domain added to blacklist successfully');
-        loadBlacklist(); // Refresh the list
-        return true;
-      } else {
-        alert('Failed to add domain to blacklist');
-      }
+    const data = await response.json();
+
+    if (response.ok && data.id) {
+      alert('Domain added to blacklist successfully');
+      loadBlacklist(); // Refresh the list
+      return true;
     } else {
-      alert('Error adding domain to blacklist');
+      const message = data.message || 'Failed to add domain to blacklist';
+      alert(message);
+      return false;
     }
   } catch (error) {
     console.error('Error:', error);
     alert('Error adding domain to blacklist');
+    return false;
   }
-  return false;
 }
 
 // Delete domain from blacklist

@@ -50,23 +50,22 @@ async function addToWhitelist(domain) {
       body: `domainname=${encodeURIComponent(domain)}`
     });
 
-    if (response.ok) {
-      const whiteList = await response.json();
-      if (whiteList && whiteList.id) {
-        alert('Domain added to whitelist successfully');
-        loadWhitelist(); // Refresh the list
-        return true;
-      } else {
-        alert('Failed to add domain to whitelist');
-      }
+    const data = await response.json();
+
+    if (response.ok && data.id) {
+      alert('Domain added to whitelist successfully');
+      loadWhitelist(); // Refresh the list
+      return true;
     } else {
-      alert('Error adding domain to whitelist');
+      const message = data.message || 'Failed to add domain to whitelist';
+      alert(message);
+      return false;
     }
   } catch (error) {
     console.error('Error:', error);
     alert('Error adding domain to whitelist');
+    return false;
   }
-  return false;
 }
 
 // Delete domain from whitelist

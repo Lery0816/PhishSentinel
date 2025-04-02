@@ -40,7 +40,7 @@
         <div class="input-content">
           <form class="url-form" >
             <input type="text" placeholder="type your domain here" class="url-input" />
-            <button type="submit" class="check-btn" id="check-domain-btn">Check</button>
+            <button type="submit" class="check-btn">Check</button>
           </form>
           <div id="result-container"></div>
         </div>
@@ -68,139 +68,6 @@
 
   <script src="js/blacklist.js"></script>
   <script src="js/whitelist.js"></script>
-  <script>
-    // Tab switching logic
-    const tabs = document.querySelectorAll('.tab');
-    const blockDomainInput = document.getElementById('block-domain-input');
-    const allowDomainInput = document.getElementById('allow-domain-input');
-    const addToBlacklistBtn = document.getElementById('add-to-blacklist-btn');
-    const addToWhitelistBtn = document.getElementById('add-to-whitelist-btn');
-    let currentList = 'blocklist';
-
-    // Initialize with blocklist
-    loadBlacklist();
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        // Update active state
-        tabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        // Update current list and load appropriate data
-        currentList = tab.dataset.list;
-        if (currentList === 'blocklist') {
-          blockDomainInput.style.display = '';
-          addToBlacklistBtn.style.display = '';
-          allowDomainInput.style.display = 'none';
-          addToWhitelistBtn.style.display = 'none';
-          loadBlacklist();
-        } else {
-          blockDomainInput.style.display = 'none';
-          addToBlacklistBtn.style.display = 'none';
-          allowDomainInput.style.display = '';
-          addToWhitelistBtn.style.display = '';
-          loadWhitelist();
-        }
-      });
-    });
-
-    // Handle domain addition
-    addToBlacklistBtn.addEventListener('click', async function() {
-      const domain = blockDomainInput.value.trim();
-      
-      if (!domain) {
-        alert('Please enter a domain');
-        return;
-      }
-
-      let success = await addToBlacklist(domain);
-
-      if (success) {
-        blockDomainInput.value = ''; // Clear input
-      }
-    });
-
-    addToWhitelistBtn.addEventListener('click', async function() {
-      const domain = allowDomainInput.value.trim();
-      
-      if (!domain) {
-        alert('Please enter a domain');
-        return;
-      }
-
-      let success = await addToWhitelist(domain);
-
-      if (success) {
-        allowDomainInput.value = ''; // Clear input
-      }
-    });
-
-    document.getElementById('check-domain-btn').addEventListener('click', async function(e) {
-      e.preventDefault();
-      
-      const url = document.querySelector('.url-input').value;
-      try {
-        const response = await fetch(`/api/domain/score?domain=${encodeURIComponent(url)}`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
-        
-        const result = await response.json();
-        
-        // Create or get result display element
-        let resultDisplay = document.querySelector('.check-result');
-        if (!resultDisplay) {
-          resultDisplay = document.createElement('div');
-          resultDisplay.className = 'check-result';
-          document.querySelector('#result-container').appendChild(resultDisplay);
-        }
-        
-        // Add high-risk class if risk level is HIGH_RISK or DANGEROUS
-        resultDisplay.classList.remove('high-risk');
-        if (result.riskLevel === 'HIGH_RISK' || result.riskLevel === 'DANGEROUS') {
-          resultDisplay.classList.add('high-risk');
-        }
-        
-        // Display the risk assessment results
-        resultDisplay.innerHTML = `
-          <div class="result-header">
-            <h3>Risk Assessment Results</h3>
-            <div class="result-actions">
-              <div class="risk-level ${result.riskLevel.toLowerCase()}">${result.riskLevel}</div>
-              <button class="dismiss-btn" aria-label="Dismiss results">×</button>
-            </div>
-          </div>
-          <div class="score-details">
-            <div class="score-item">
-              <span>List Score:</span>
-              <span>${result.listScore}</span>
-            </div>
-            <div class="score-item">
-              <span>Structure Score:</span>
-              <span>${result.structureScore}</span>
-            </div>
-            <div class="score-item">
-              <span>SSL Score:</span>
-              <span>${result.sslScore}</span>
-            </div>
-            <div class="score-item">
-              <span>WHOIS Score:</span>
-              <span>${result.whoisScore}</span>
-            </div>
-          </div>
-        `;
-
-        // Add click handler for dismiss button
-        resultDisplay.querySelector('.dismiss-btn').addEventListener('click', function() {
-          resultDisplay.remove();
-        });
-      } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while checking the domain. Please try again.');
-      }
-    });
-  </script>
+  <script src="js/dashboard.js"></script>
 </body>
 </html>
