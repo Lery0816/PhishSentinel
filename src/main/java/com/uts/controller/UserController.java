@@ -27,10 +27,9 @@ public class UserController {
     @PostMapping("/login")
     @ResponseBody
     public int login(@RequestParam String email, @RequestParam String password, HttpServletRequest request) {
-        User user=userService.findUser(email,password);
-        if (null!=user) {
-            User sessionUser = new User();
-            sessionUser.setId(user.getId());
+        User user = userService.findUser(email, password);
+        if (user != null) {
+            user.setPassword(null); // Remove password before storing in session
             request.getSession().setAttribute("user", user);
             return 1; // Login successful
         }
@@ -41,5 +40,15 @@ public class UserController {
     public String logout(HttpServletRequest request) {
         request.getSession().removeAttribute("user");
         return "redirect:/";
+    }
+
+    @GetMapping("/current")
+    @ResponseBody
+    public User getCurrentUser(HttpServletRequest request) {
+        Object userObj = request.getSession().getAttribute("user");
+        if (userObj instanceof User) {
+            return (User) userObj;
+        }
+        return null;
     }
 }
