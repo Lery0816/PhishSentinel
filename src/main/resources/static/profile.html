@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Profile Settings - URL Safety Checker</title>
+  <link rel="stylesheet" href="css/profile.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- 顶部导航条 -->
+  <div class="top-bar-container">
+    <header class="top-bar">
+      <div class="top-left">
+        <img src="images/logo.png" alt="Logo" width="54" height="54"/>
+        <span class="top-title">URL Safety Checker</span>
+      </div>
+      <nav class="top-nav">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#" class="active">Profile</a>
+        <a href="/api/user/logout" class="logout-btn">Logout</a>
+      </nav>
+    </header>
+  </div>
+
+
+  <main class="container">
+    <section class="content-card">
+      <div class="content-header">
+        <h1>Profile Settings</h1>
+      </div>
+      <p class="subtitle">Update your personal details</p>
+
+      <form class="profile-form" id="profileForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="fullname">Full Name</label>
+            <input type="text" id="fullname" value="" />
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" value="" />
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="text" id="phone" value="" />
+          </div>
+          <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" value="" />
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button type="submit" class="save-btn">Save Changes</button>
+        </div>
+      </form>
+    </section>
+  </main>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load current user data
+      fetch('/api/user/current')
+        .then(response => response.json())
+        .then(user => {
+          if (user) {
+            document.getElementById('fullname').value = user.fullName ?? '';
+            document.getElementById('email').value = user.email ?? '';
+            document.getElementById('phone').value = user.phoneNumber ?? '';
+            document.getElementById('company').value = user.company ?? '';
+          }
+        });
+
+      // Handle form submission
+      document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const userData = {
+          fullName: document.getElementById('fullname').value,
+          phoneNumber: document.getElementById('phone').value,
+          company: document.getElementById('company').value
+        };
+
+        fetch('/api/user/update', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result === 1) {
+            alert('Profile updated successfully!');
+          } else {
+            alert('Failed to update profile. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while updating the profile.');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

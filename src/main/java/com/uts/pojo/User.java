@@ -22,6 +22,10 @@ public class User {
     private String password;
     private String email;
 
+    private String fullName;
+    private String company;
+    private String phoneNumber;
+
     @TableField("created_at")
     private LocalDateTime createdAt;
 

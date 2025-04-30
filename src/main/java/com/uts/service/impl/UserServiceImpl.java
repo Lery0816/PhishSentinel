@@ -35,4 +35,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userMapper.selectOne(wrapper);
     }
 
+    @Override
+    public void updateUser(User user) {
+        if (user.getId() == null) {
+            throw new BusinessException(ErrorCode.USER_NOT_FOUND.getCode(), "User ID cannot be null");
+        }
+        int rows = userMapper.updateById(user);
+        if (rows != 1) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR.getCode(), "Failed to update user");
+        }
+    }
 }

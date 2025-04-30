@@ -1,0 +1,167 @@
+/* 通用设置 */
+body {
+    margin: 0;
+    font-family: 'Source Sans Pro', sans-serif;
+    background: #f5f9fe;
+    color: #292929;
+  }
+  
+
+  /* 顶部白色导航容器 */
+  .top-bar-container {
+    width: 100%;
+    height: 103px;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+  }
+  
+  .top-bar {
+    max-width: 1200px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  
+  .top-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .shield-icon {
+    width: 54px;
+    height: 54px;
+    margin-right: 20px;
+  }
+  
+  .top-title {
+    font-size: 34px;
+    font-weight: 700;
+    color: #367cf4;
+  }
+  
+  .top-nav {
+    display: flex;
+    gap: 24px;
+  }
+  
+  .top-nav a {
+    text-decoration: none;
+    color: #4a4a4a;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 4px;
+  }
+
+  .top-nav a.active {
+    color: #367cf4;
+  }
+
+  .top-nav a.logout-btn {
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    transition: all 0.3s ease;
+  }
+
+  .top-nav a.logout-btn:hover {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  /* 主内容区 */
+  .container {
+    padding: 160px 24px 48px;
+    min-height: 100vh;
+    box-sizing: border-box;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  /* 内容卡片 */
+  .content-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px 48px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+  
+  .content-header h1 {
+    font-size: 34px;
+    color: #2d2d2d;
+    margin: 0;
+  }
+  
+  .subtitle {
+    font-size: 16px;
+    color: #7d7c7c;
+    margin-top: 8px;
+    margin-bottom: 32px;
+  }
+  
+  /* 头像和表单顶排 */
+  .profile-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+    /*margin-top: 40px; */
+  }
+  
+  /* 表单部分 */
+  .profile-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 表单网格（两列） */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 48px;
+    flex: 1;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 20px;
+    border: 1px solid #bbbbbb;
+    font-size: 16px;
+    background: #ffffff;
+    box-sizing: border-box;
+  }
+  
+  /* 保存按钮区域 */
+  .btn-group {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .save-btn {
+    background: #4a6fff;
+    color: #ffffff;
+    border: none;
+    padding: 14px 32px;
+    font-size: 18px;
+    border-radius: 20px;
+    cursor: pointer;
+  }
