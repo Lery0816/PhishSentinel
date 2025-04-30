@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @Controller
 @RequestMapping("/api/user")
 public class UserController {
@@ -50,5 +52,29 @@ public class UserController {
             return (User) userObj;
         }
         return null;
+    }
+
+    @PutMapping("/update")
+    @ResponseBody
+    public int updateUserProfile(@RequestBody User user, HttpServletRequest request) {
+        User currentUser = getCurrentUser(request);
+        if (currentUser == null) {
+            return 0; // Not logged in
+        }
+
+        // Update only allowed fields
+        currentUser.setFullName(user.getFullName());
+        currentUser.setCompany(user.getCompany());
+        currentUser.setPhoneNumber(user.getPhoneNumber());
+        currentUser.setUpdatedAt(LocalDateTime.now());
+
+        try {
+            userService.updateUser(currentUser);
+            // Update session with new user data
+            request.getSession().setAttribute("user", currentUser);
+            return 1; // Update successful
+        } catch (Exception e) {
+            return 0; // Update failed
+        }
     }
 }

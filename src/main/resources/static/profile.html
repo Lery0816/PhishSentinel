@@ -15,8 +15,8 @@
         <span class="top-title">URL Safety Checker</span>
       </div>
       <nav class="top-nav">
-        <a href="#" class="active">Dashboard</a>
-        <a href="#">Profile</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#" class="active">Profile</a>
       </nav>
       <div class="top-avatar">
         <img src="https://placehold.co/68" alt="User Avatar" />
@@ -65,6 +65,7 @@
   </main>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Load current user data
       fetch('/api/user/current')
         .then(response => response.json())
         .then(user => {
@@ -75,6 +76,37 @@
             document.getElementById('company').value = user.company ?? '';
           }
         });
+
+      // Handle form submission
+      document.getElementById('profileForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const userData = {
+          fullName: document.getElementById('fullname').value,
+          phoneNumber: document.getElementById('phone').value,
+          company: document.getElementById('company').value
+        };
+
+        fetch('/api/user/update', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result === 1) {
+            alert('Profile updated successfully!');
+          } else {
+            alert('Failed to update profile. Please try again.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred while updating the profile.');
+        });
+      });
     });
   </script>
 </body>
