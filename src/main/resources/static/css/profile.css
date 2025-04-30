@@ -76,12 +76,6 @@ body {
     color: white;
   }
   
-  .top-avatar img {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-  }
-  
   /* 主内容区 */
   .container {
     padding: 160px 24px 48px;
@@ -118,31 +112,6 @@ body {
     align-items: flex-start;
     gap: 48px;
     /*margin-top: 40px; */
-  }
-  
-  /* 头像区域 */
-  .photo-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 120px;
-    margin-top: 30px; 
-  }
-  
-  .profile-photo {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    background-color: #e4ecf9;
-  }
-  
-  .change-photo {
-    margin-top: 12px;
-    font-size: 16px;
-    color: #4a6fff;
-    cursor: pointer;
-    text-align: center;
   }
   
   /* 表单部分 */
@@ -196,4 +165,3 @@ body {
     border-radius: 20px;
     cursor: pointer;
   }
-  
