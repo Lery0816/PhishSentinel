@@ -37,7 +37,6 @@ public class DomainServiceImpl implements DomainService {
     @Autowired
     WhoisInfoMapper whoisInfoMapper;
 
-    private static final String API_KEY = "at_QN8suVyFHbeHcQr3kM3hr1qR83Vem";
     @Override
     public int checkList(String domainName) {
         if (isInBlacklist(domainName)) {
@@ -51,20 +50,17 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public int analyzeDomainStructure(String domain) {
         int score = 0;
-        //长度检测
         if (domain.length() > 50) {
             score += 10;
         } else if (domain.length() > 30) {
             score += 5;
         }
-        //特殊字符检测
         if (domain.matches(".*[-_%$'\";].*")) {
             score += 5;
         }
         if (domain.matches(".*\\d{4,}.*") || domain.contains("--")) {
             score += 5;
         }
-        //伪字符检测
         String[] phishingPatterns = { "rn", "vv", "micr0soft", "g00gle", "faceb00k", "paypa1", "amaz0n", "banka1", "1ogin", "secur1ty",
                 "acc0unt", "ver1fy", "updat3", "conf1rm", "supp0rt", "serv1ce", "re1ease"};
         for (String pattern : phishingPatterns) {
@@ -73,7 +69,6 @@ public class DomainServiceImpl implements DomainService {
                 break;
             }
         }
-        //SQL注入检测
         String[] sqlPatterns = {"or 1=1", "union select", "drop table", ";--"};
         for (String pattern : sqlPatterns) {
             if (domain.toLowerCase().contains(pattern)) {
@@ -122,7 +117,6 @@ public class DomainServiceImpl implements DomainService {
             ssl.setCertificateValid(false);
             ssl.setExpirationDate(null);
         }
-        // 数据库插入或更新
         QueryWrapper<SSLCertificate> wrapper = new QueryWrapper<>();
         wrapper.eq("domain_name", domainName);
         SSLCertificate existing = sslCertificateMapper.selectOne(wrapper);
@@ -160,7 +154,6 @@ public class DomainServiceImpl implements DomainService {
         if (whois == null) {
             return 30;
         }
-        //计算有效期
         LocalDate now = LocalDate.now();
         int months = (now.getYear() - whois.getCreationDate().getYear()) * 12
                 + (now.getMonthValue() - whois.getCreationDate().getMonthValue());
@@ -201,14 +194,14 @@ public class DomainServiceImpl implements DomainService {
     @Override
     public void checkWhoisInfo(String domain) {
         try {
-            String apiUrl = "https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=" + API_KEY
-                    + "&domainName=" + domain + "&outputFormat=JSON";
+            String apiUrl = "https://rdap.org/domain/"+domain;
 
             URL url = new URL(apiUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
+
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             String inputLine;
             StringBuilder response = new StringBuilder();
@@ -216,38 +209,61 @@ public class DomainServiceImpl implements DomainService {
                 response.append(inputLine);
             }
             in.close();
-            //使用Jackson解析
+
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.toString());
-            JsonNode whoisRecord = root.path("WhoisRecord");
+
             WhoisInfo whois = new WhoisInfo();
             whois.setDomainName(domain);
-            whois.setRegistrar(whoisRecord.path("registrarName").asText(null));
-            String createdDate = whoisRecord.path("createdDate").asText(null);
-            if (createdDate != null) {
-                LocalDate date = LocalDate.parse(createdDate.substring(0, 10), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                whois.setCreationDate(date);
+
+            JsonNode registrarNode = root.path("registrar");
+            if (!registrarNode.isMissingNode()) {
+                String registrarName = registrarNode.path("name").asText(null);
+                whois.setRegistrar(registrarName);
             }
 
-            boolean privacy = whoisRecord.path("privacy").asBoolean(false);
+            JsonNode events = root.path("events");
+            for (JsonNode event : events) {
+                if ("registration".equals(event.path("eventAction").asText())) {
+                    String registrationDate = event.path("eventDate").asText(null);
+                    if (registrationDate != null) {
+                        LocalDate date = LocalDate.parse(registrationDate.substring(0, 10));
+                        whois.setCreationDate(date);
+                    }
+                    break;
+                }
+            }
+
+            boolean privacy = false;
+            JsonNode entities = root.path("entities");
+            for (JsonNode entity : entities) {
+                JsonNode vcardArray = entity.path("vcardArray");
+                if (vcardArray.isArray() && vcardArray.size() > 1) {
+                    JsonNode vcardDetails = vcardArray.get(1);
+                    for (JsonNode field : vcardDetails) {
+                        if ("fn".equals(field.get(0).asText()) && field.get(3).asText("").toLowerCase().contains("privacy")) {
+                            privacy = true;
+                            break;
+                        }
+                    }
+                }
+            }
             whois.setPrivacyProtection(privacy);
 
-            //更新数据库
             QueryWrapper<WhoisInfo> wrapper = new QueryWrapper<>();
             wrapper.eq("domain_name", domain);
             WhoisInfo existing = whoisInfoMapper.selectOne(wrapper);
             if (existing != null) {
                 whois.setId(existing.getId());
-                whoisInfoMapper.updateById(whois);//存在更新
+                whoisInfoMapper.updateById(whois);
             } else {
-                whoisInfoMapper.insert(whois);//不存在插入
+                whoisInfoMapper.insert(whois);
             }
 
         } catch (Exception e) {
-            System.err.println("WhoisAPI获取内容失败: " + e.getMessage());
+            System.err.println("Failed to retrieve RDAP information: " + e.getMessage());
         }
     }
-
     @Override
     public WhoisInfo getWhoisInfo(String domain) {
         QueryWrapper<WhoisInfo> wrapper = new QueryWrapper<>();

@@ -4,9 +4,14 @@ CREATE TABLE users (
     username VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    full_name VARCHAR(255) NOT NULL UNIQUE,
+    company VARCHAR(255) NOT NULL UNIQUE,
+    phone_number VARCHAR(50) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+INSERT INTO users (username, password, email, full_name, company, phone_number)
+VALUES ('test', 'test123', 'test@uts.com', 'Test User', 'UTS Company', '0412345678');
 
 -- Blacklist table
 CREATE TABLE blacklist (

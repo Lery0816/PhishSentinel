@@ -3,7 +3,7 @@ package com.uts.exception;
 
 public class BusinessException  extends RuntimeException  {
 
-    private int code;// 新增错误类型
+    private int code;
 
     public BusinessException(int code, String message) {
         super(message);
